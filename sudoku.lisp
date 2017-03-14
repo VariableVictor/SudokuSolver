@@ -123,7 +123,10 @@
     (sudoku-print2a99 matrixt)
     (setf matrixt (sudoku-fill-certF matrixt tnum))
     (sudoku-print2a99 matrixt)
-    (setf matrix (sudoku-test-fill matrixt))
+    ;(setf matrixt (sudoku-test-fill matrixt))
+    ;(sudoku-print2a99 matrixt)
+    (setf matrixt (sudoku-iterate-fill-2ways matrixt))
+    ;(setf matrixt (sudoku-iterate-column matrixt 1))
     (sudoku-print2a99 matrixt)
     nil
     )
@@ -134,20 +137,74 @@
   (let ((countT (sudoku-count-t-number arrsudoku)))
     countT))
 
-(defun sudoku-iterate-fill (arrsudoku)
-  "Iterate in 3 ways"
+(defun sudoku-iterate-fill-2ways (arrsudoku)
+  "Iterate in lines"
   (dotimes (tnum 9)
-    (setf arrsudoku (sudoku-iterate-3form arrsudoku tnum 0 0 0))
+    (setf arrsudoku (sudoku-iterate-lines arrsudoku tnum ))
+    (setf arrsudoku (sudoku-iterate-column arrsudoku tnum ))
+    )
+  arrsudoku
+  )
+(defun sudoku-iterate-column (arrsudoku ncol &optional (nrow 0) rowzero)
+  (format t "recu r~A c~A z~A v~A ~%" nrow ncol rowzero (if (< nrow 9) (aref arrsudoku nrow ncol) 'G))
+  (if (eql nrow 9)
+    (progn
+      (if rowzero
+        (setf (aref arrsudoku rowzero ncol) 'T))
+      arrsudoku)
+    (progn
+      (setf nrow (case (aref arrsudoku nrow ncol)
+                   ('T 9)
+                   ('F (+ nrow 1))
+                   (0 (if (null rowzero)
+                        (progn 
+                          (setf rowzero nrow)
+                          (+ nrow 1))
+                        (progn
+                          (setf rowzero nil)
+                          9)))))
+      (sudoku-iterate-column arrsudoku ncol nrow rowzero)
+      ) 
     )
   )
 
-(defun sudoku-iterate-3form (arrsudoku tnum ncol nrow ncell)
-  "iterate the row, col, grid"
-  (let ((colzero nil)
-        (rowzero nil)
-        (cellzero nil)
-        ))
+(defun sudoku-iterate-lines (arrsudoku nrow &optional (ncol 0) colzero)
+  ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol colzero (if (< ncol 9) (aref arrsudoku nrow ncol) 'G))
+  (if (eql ncol 9)
+    (progn
+      (if colzero
+        (setf (aref arrsudoku nrow colzero) 'T))
+      arrsudoku)
+    (progn
+      (setf ncol (case (aref arrsudoku nrow ncol)
+                   ('T 9)
+                   ('F (+ ncol 1))
+                   (0 (if (null colzero)
+                        (progn 
+                          (setf colzero ncol)
+                          (+ ncol 1))
+                        (progn
+                          (setf colzero nil)
+                          9)))))
+      (sudoku-iterate-lines arrsudoku nrow ncol colzero)
+      ) 
+    )
   )
+
+;;(defun sudoku-iterate-3form (arrsudoku tnum 
+;;                             &optional (ncol 0) (nrow 0) (ncell 0)
+;;                             colzero rowzero cellzero)
+;;  "iterate the col, row, cell"
+;;  (cond ((eql )))
+;;  (case (aref arrsudoku tnum ncol)
+;;    ('F (setf ncol (+ ncol 1)))
+;;    
+;;    )
+;;
+;;;;分别遍历列，行，格
+;;
+;;  
+;;  )
 
 ;;返回T的数量
 (defun sudoku-count-t-number (arrsudoku)
