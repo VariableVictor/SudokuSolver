@@ -142,11 +142,12 @@
   (dotimes (tnum 9)
     (setf arrsudoku (sudoku-recu-rows arrsudoku tnum ))
     (setf arrsudoku (sudoku-iterate-column arrsudoku tnum ))
+    (setf arrsudoku (sudoku-recu-grid arrsudoku tnum ))
     )
   arrsudoku
   )
 (defun sudoku-iterate-column (arrsudoku ncol &optional (nrow 0) rowzero)
-  (format t "recu r~A c~A z~A v~A ~%" nrow ncol rowzero (if (< nrow 9) (aref arrsudoku nrow ncol) 'G))
+  ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol rowzero (if (< nrow 9) (aref arrsudoku nrow ncol) 'G))
   (if (eql nrow 9)
     (progn
       (if rowzero
@@ -191,29 +192,66 @@
     )
   )
 
+(defun sudoku-get-grid-value (arrsudoku igrid icell)
+  (destructuring-bind ((gb gh) (cb ch))
+    (list (multiple-value-list (floor igrid 3)) (multiple-value-list (floor icell 3)))
+    ;(format t "gb~A gh~A cb~A ch~A~%" gb gh cb ch)
+    ;(format t "row~A col~A~%" (+ (* gb 3) cb) (+ (* gh 3) ch))
+    (aref arrsudoku (+ (* gb 3) cb) (+ (* gh 3) ch))
+    ))
+
+(defun sudoku-grid-setvalue (value arrsudoku igrid icell)
+  (destructuring-bind ((gb gh) (cb ch))
+    (list (multiple-value-list (floor igrid 3)) (multiple-value-list (floor icell 3)))
+    ;(format t "gb~A gh~A cb~A ch~A~%" gb gh cb ch)
+    ;(format t "row~A col~A~%" (+ (* gb 3) cb) (+ (* gh 3) ch))
+    (setf (aref arrsudoku (+ (* gb 3) cb) (+ (* gh 3) ch)) value)
+    ))
+
 (defun sudoku-recu-grid (arrsudoku ngrid &optional (ncell 0) cellzero)
-  (aref )
-  ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol colzero (if (< ncol 9) (aref arrsudoku nrow ncol) 'G))
-  (if (eql ncol 9)
+  ;(format t "recu g~A c~A z~A v~A~%" ngrid ncell cellzero
+  ;        (if (< ncell 9) (sudoku-get-grid-value arrsudoku ngrid ncell) 'G))
+  (if (eql ncell 9)
     (progn
-      (if colzero
-        (setf (aref arrsudoku nrow colzero) 'T))
+      (if cellzero
+        (sudoku-grid-setvalue 'T arrsudoku ngrid cellzero))
       arrsudoku)
     (progn
-      (setf ncol (case (aref arrsudoku nrow ncol)
-                   ('T 9)
-                   ('F (+ ncol 1))
-                   (0 (if (null colzero)
-                        (progn 
-                          (setf colzero ncol)
-                          (+ ncol 1))
-                        (progn
-                          (setf colzero nil)
-                          9)))))
-      (sudoku-recu-rows arrsudoku nrow ncol colzero)
-      ) 
+      (setf ncell (case (sudoku-get-grid-value arrsudoku ngrid ncell)
+                    ('T 9)
+                    ('F (+ ncell 1))
+                    (0 (if (null cellzero)
+                         (progn
+                           (setf cellzero ncell)
+                           (+ ncell 1))
+                         (progn
+                           (setf cellzero nil)
+                           9)))))
+      (sudoku-recu-grid arrsudoku ngrid ncell cellzero)
+      )
     )
+  ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol colzero (if (< ncol 9) (aref arrsudoku nrow ncol) 'G))
   )
+;  (if (eql ncol 9)
+;    (progn
+;      (if colzero
+;        (setf (aref arrsudoku nrow colzero) 'T))
+;      arrsudoku)
+;    (progn
+;      (setf ncol (case (aref arrsudoku nrow ncol)
+;                   ('T 9)
+;                   ('F (+ ncol 1))
+;                   (0 (if (null colzero)
+;                        (progn 
+;                          (setf colzero ncol)
+;                          (+ ncol 1))
+;                        (progn
+;                          (setf colzero nil)
+;                          9)))))
+;      (sudoku-recu-rows arrsudoku nrow ncol colzero)
+;      ) 
+;    )
+;  )
 
 ;;(defun sudoku-iterate-3form (arrsudoku tnum 
 ;;                             &optional (ncol 0) (nrow 0) (ncell 0)
