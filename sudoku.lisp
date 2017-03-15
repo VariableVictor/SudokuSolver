@@ -140,7 +140,7 @@
 (defun sudoku-iterate-fill-2ways (arrsudoku)
   "Iterate in lines"
   (dotimes (tnum 9)
-    (setf arrsudoku (sudoku-iterate-lines arrsudoku tnum ))
+    (setf arrsudoku (sudoku-recu-rows arrsudoku tnum ))
     (setf arrsudoku (sudoku-iterate-column arrsudoku tnum ))
     )
   arrsudoku
@@ -168,7 +168,7 @@
     )
   )
 
-(defun sudoku-iterate-lines (arrsudoku nrow &optional (ncol 0) colzero)
+(defun sudoku-recu-rows (arrsudoku nrow &optional (ncol 0) colzero)
   ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol colzero (if (< ncol 9) (aref arrsudoku nrow ncol) 'G))
   (if (eql ncol 9)
     (progn
@@ -186,7 +186,31 @@
                         (progn
                           (setf colzero nil)
                           9)))))
-      (sudoku-iterate-lines arrsudoku nrow ncol colzero)
+      (sudoku-recu-rows arrsudoku nrow ncol colzero)
+      ) 
+    )
+  )
+
+(defun sudoku-recu-grid (arrsudoku ngrid &optional (ncell 0) cellzero)
+  (aref )
+  ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol colzero (if (< ncol 9) (aref arrsudoku nrow ncol) 'G))
+  (if (eql ncol 9)
+    (progn
+      (if colzero
+        (setf (aref arrsudoku nrow colzero) 'T))
+      arrsudoku)
+    (progn
+      (setf ncol (case (aref arrsudoku nrow ncol)
+                   ('T 9)
+                   ('F (+ ncol 1))
+                   (0 (if (null colzero)
+                        (progn 
+                          (setf colzero ncol)
+                          (+ ncol 1))
+                        (progn
+                          (setf colzero nil)
+                          9)))))
+      (sudoku-recu-rows arrsudoku nrow ncol colzero)
       ) 
     )
   )
