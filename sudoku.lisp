@@ -89,9 +89,9 @@
 
 (defun sudoku-fill-cell (arrsudoku numi numj))
 
-(defun sudoku-fill-certF (arrMatrix snum)
+(defun sudoku-fill-certF (arrMatrix)
   "Fill the Single-Number Matrix to fill the certain not numcell"
-  (format t "Fill the ~A~%" snum)
+  (format t "Fill~%")
   (dotimes (i 9)
     (dotimes (j 9)
       (cond ((eql 'T (aref arrMatrix i j)) (sudoku-mark arrMatrix i j))
@@ -125,7 +125,8 @@
     (sudoku-print2a99 matrixt)
     ;(setf matrixt (sudoku-test-fill matrixt))
     ;(sudoku-print2a99 matrixt)
-    (setf matrixt (sudoku-iterate-fill-2ways matrixt))
+    ;(setf matrixt (sudoku-iterate-fill-2ways matrixt))
+    (setf matrixt (sudoku-test-fill matrixt))
     ;(setf matrixt (sudoku-iterate-column matrixt 1))
     (sudoku-print2a99 matrixt)
     nil
@@ -134,19 +135,27 @@
 
 (defun sudoku-test-fill (arrsudoku)
   "Fill the Single Number Matrix"
+  (sudoku-print2a99 arrsudoku)
   (let ((countT (sudoku-count-t-number arrsudoku)))
-    countT))
+    (format t "start count ~A ~%" countT)
+    (setf arrsudoku (sudoku-iterate-fill-2ways arrsudoku))
+    (sudoku-print2a99 arrsudoku)
+    (format t "end count ~A ~%" (sudoku-count-t-number arrsudoku))
+    (if (eql countT (sudoku-count-t-number arrsudoku))
+      arrsudoku
+      (sudoku-test-fill arrsudoku))
+    ))
 
 (defun sudoku-iterate-fill-2ways (arrsudoku)
   "Iterate in lines"
   (dotimes (tnum 9)
     (setf arrsudoku (sudoku-recu-rows arrsudoku tnum ))
-    (setf arrsudoku (sudoku-iterate-column arrsudoku tnum ))
+    (setf arrsudoku (sudoku-recu-column arrsudoku tnum ))
     (setf arrsudoku (sudoku-recu-grid arrsudoku tnum ))
     )
   arrsudoku
   )
-(defun sudoku-iterate-column (arrsudoku ncol &optional (nrow 0) rowzero)
+(defun sudoku-recu-column (arrsudoku ncol &optional (nrow 0) rowzero)
   ;(format t "recu r~A c~A z~A v~A ~%" nrow ncol rowzero (if (< nrow 9) (aref arrsudoku nrow ncol) 'G))
   (if (eql nrow 9)
     (progn
@@ -164,7 +173,7 @@
                         (progn
                           (setf rowzero nil)
                           9)))))
-      (sudoku-iterate-column arrsudoku ncol nrow rowzero)
+      (sudoku-recu-column arrsudoku ncol nrow rowzero)
       ) 
     )
   )
@@ -274,8 +283,8 @@
   (let ((count0 0))
     (dotimes (i 9)
       (dotimes (j 9)
-	(cond ((eql 'T (aref arrsudoku i j)) (setf count0 (+ count0 1)))
-	      )))
+        (cond ((eql 'T (aref arrsudoku i j)) (setf count0 (+ count0 1)))
+              )))
     count0))
 
 (defun sudoku-check0 (arrsudoku i j)
