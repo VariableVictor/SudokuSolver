@@ -1,4 +1,4 @@
-(setf testsudoku 
+(setf stsudoku 
         #2a((0 9 3 0 0 0 1 4 2)
             (8 5 6 1 4 0 7 0 0)
             (4 2 1 7 0 3 0 6 0)
@@ -9,7 +9,68 @@
             (5 7 0 3 0 0 0 0 0)
             (3 4 0 0 0 1 2 7 0)))
 
-(defun sudoku-2a99p (arrsudoku);是否是二维9乘9数组
+
+;;生成1-9的列表
+(defun sudoku-make9list ()
+  (copy-list '(1 2 3 4 5 6 7 8 9)))
+;打印当前二维数组
+(defun sudoku-print2a99 (arrsudoku)
+"打印当前二维数组"
+  (if (arrayp arrsudoku)
+      (if (equal '(9 9) (array-dimensions arrsudoku))
+        (progn
+          (format t "Print SuDoKu~%")
+          (dotimes (arow 9)
+            (format t "(")
+            (dotimes (acol 9)
+              (format t " ~A" 
+                (if (aref arrsudoku arow acol)
+                  (aref arrsudoku arow acol)
+                  'n)))
+            (format t " )~%")))
+        nil)
+      nil))
+;;建立主要结构体，二维数组，第一维是具体数字（1-9）；
+;;第二维长度4，分别是已知点坐标表和未知点可能在的行、列、格
+(defun sudoku-generate-struct (arrsudoku)
+  (let ((arrresult (make-array '(9 4) :initial-element nil)))
+    (dotimes (nnum 9)
+      (dotimes (ntypm1 3)
+        (setf (aref arrresult nnum (+ 1 ntypm1)) (sudoku-make9list))))
+    (dotimes (nrow 9)
+      (dotimes (ncol 9)
+        (let ((value (aref arrsudoku nrow ncol)))
+          (if (zerop value)
+            nil
+            (progn
+              (push (list nrow ncol) (aref arrresult (- value 1) 0))))
+          )))
+    arrresult
+    ))
+
+;
+(defun sudoku-recu-3w)
+
+;递归，累计所有各数的结果，返回是否有变化
+(defun sudoku-recu-num (arrsudoku arrmatrix dnum listnf bc)
+  (if listnf
+    (sudoku-recu-num arrsudoku arrmatrix (car listnf) (cdr listnf) (or bc (sudoku-recu-3w)))
+    bc))
+
+;递归,若表发生过变化则再递归，否则返回新表
+(defun sudoku-recu-all (arrsudoku arrmatrix listnf bc)
+  (if bc
+    (setf bc (sudoku-recu-num arrsudoku arrmatrix (car listnf) (cdr listnf) nil))
+    arrsudoku))
+
+;;主要函数
+(defun sudoku-main (arrsudoku)
+  (let ((arrmatrix (sudoku-make9list arrsudoku))
+        (listnotfinish (sudoku-make9list))
+        (bchanged T))
+    
+    ))
+#|(defun sudoku-2a99p (arrsudoku);是否是二维9乘9数组
   (equal '(9 9) (array-dimensions arrsudoku)))
 
 (defun sudoku-inputrecu (lsudoku sr sc);
@@ -38,22 +99,9 @@
        (arrayp (car listsudoku))
        (sudoku-2a99p (car listsudoku))))
 
-(defun sudoku-print2a99 (arrsudoku)
-"打印当前二维数组"
-  (if (arrayp arrsudoku)
-      (if (equal '(9 9) (array-dimensions arrsudoku))
-        (progn
-          (format t "Print SuDoKu~%")
-          (dotimes (arow 9)
-            (format t "(")
-            (dotimes (acol 9)
-              (format t " ~A" 
-                (if (aref arrsudoku arow acol)
-                  (aref arrsudoku arow acol)
-                  'n)))
-            (format t " )~%")))
-        nil)
-      nil))
+)
+
+(defun sudoku-maketagarray (arrsudoku))
 
 (defun sudoku-make-SNM2a99 (arrsudoku snum)
   "Single Number Matrix"
@@ -284,15 +332,4 @@
 ;;  )
 
 ;;返回T的数量
-(defun sudoku-count-t-number (arrsudoku)
-  "Return Number of T"
-  (let ((countT 0))
-    (dotimes (i 9)
-      (dotimes (j 9)
-        (cond ((eql 'T (aref arrsudoku i j)) (setf countT (+ countT 1)))
-              )))
-    countT))
-
-(defun sudoku-check0 (arrsudoku i j)
-  "check if the cell can be filled in T"
-  0)
+|#
